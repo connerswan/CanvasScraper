@@ -1,0 +1,19 @@
+[project]
+name = "canvas-scraper"
+version = "0.1.0"
+description = "Scrape Canvas LMS course materials and upload to Google Drive"
+requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.31.0",
+    "google-api-python-client>=2.100.0",
+    "google-auth-oauthlib>=1.1.0",
+    "google-auth-httplib2>=0.1.1",
+    "python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+canvas-scraper = "canvas_scraper.cli:main"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"

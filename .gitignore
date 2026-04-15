@@ -134,6 +134,10 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
+# CanvasScraper secrets
+credentials/
+token.json
+
 # Environments
 .env
 .envrc
