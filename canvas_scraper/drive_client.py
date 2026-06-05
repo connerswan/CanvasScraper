@@ -125,6 +125,15 @@ def upload_html_as_doc(service, html_content: str, folder_id: str, filename: str
     return file["id"]
 
 
+def file_exists(service, file_id: str) -> bool:
+    """Return True if a Drive file with this ID exists and is accessible."""
+    try:
+        service.files().get(fileId=file_id, fields="id").execute()
+        return True
+    except Exception:
+        return False
+
+
 def _find_file(service, name: str, parent_id: str) -> str | None:
     """Return file ID if a file with this name exists in the folder, else None."""
     query = (

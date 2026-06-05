@@ -246,9 +246,12 @@ def _handle_item(
 ) -> None:
     """Upload a single item (file or HTML doc) to Drive, tracking via manifest."""
     if key in manifest:
-        print(f"    SKIP (already uploaded): {name}")
-        summary["skipped"] += 1
-        return
+        if dry_run or dc.file_exists(drive, manifest[key]):
+            print(f"    SKIP (already uploaded): {name}")
+            summary["skipped"] += 1
+            return
+        # Stale manifest entry (file deleted or different Drive account) — re-upload
+        del manifest[key]
 
     if dry_run:
         print(f"    [DRY RUN] would upload: {name}")
