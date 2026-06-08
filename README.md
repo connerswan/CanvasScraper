@@ -67,11 +67,13 @@ This installs the tool and its dependencies. You only need to do this once.
 
 ### 5. Get your Canvas API token
 
-1. Log into Canvas at [canvas.uw.edu](https://canvas.uw.edu)
-2. Click your profile picture (top-left) > **Settings**
-3. Scroll down to **Approved Integrations** and click **+ New Access Token**
-4. Give it a name like "CanvasScraper" — leave the expiry date blank
-5. Click **Generate Token**, then copy it immediately — you won't be able to see it again
+UW has disabled self-service token generation, so you need to request one by email:
+
+1. Send an email to **help@uw.edu** with a subject like "Canvas API access token request"
+2. In the body, say you'd like an API access token and that you agree to the terms of use — UW requires this agreement on record before they'll generate one
+3. They'll reply with your token (or instructions to retrieve it)
+
+Once you have the token, skip to step 6.
 
 ---
 
@@ -181,7 +183,10 @@ Make sure your `.env` file exists (not `.env.example` or `.env.txt`) and contain
 Make sure `client_secret.json` is inside a `credentials` folder in `CanvasScraper-main`.
 
 **"Canvas API token is invalid or expired"**
-Generate a new token in Canvas (Account > Settings > Approved Integrations) and update your `.env` file.
+Your token may have expired or been revoked. If you're at UW, email **help@uw.edu** to request a new one (same process as step 5). Update your `.env` file with the new token once you have it.
+
+**Can't find the "New Access Token" button in Canvas Settings**
+UW has disabled self-service token generation. See step 5 — you need to email **help@uw.edu** to get a token issued to you.
 
 **Google login fails with "Access blocked"**
 Your email hasn't been added as a test user. Ask the Google Cloud project owner to add you under **APIs & Services > OAuth consent screen > Test users**.
