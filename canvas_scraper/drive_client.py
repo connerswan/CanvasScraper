@@ -31,8 +31,13 @@ def authenticate(credentials_dir: Path):
 
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
+            try:
+                creds.refresh(Request())
+            except Exception:
+                # Refresh token revoked — delete stale token and re-auth
+                token_path.unlink(missing_ok=True)
+                creds = None
+        if not creds or not creds.valid:
             flow = InstalledAppFlow.from_client_secrets_file(str(secret_path), SCOPES)
             creds = flow.run_local_server(port=0)
         credentials_dir.mkdir(parents=True, exist_ok=True)
