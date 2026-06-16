@@ -188,6 +188,9 @@ Your token may have expired or been revoked. If you're at UW, email **help@uw.ed
 **Can't find the "New Access Token" button in Canvas Settings**
 UW has disabled self-service token generation. See step 5 — you need to email **help@uw.edu** to get a token issued to you.
 
+**"Google Drive authentication failed — invalid_grant: Token has been expired or revoked"**
+Your saved Google login token has been revoked (this can happen if you haven't run the scraper in a while or revoked app access in your Google Account settings). Pull the latest code (`git pull` inside the `CanvasScraper-main` folder) — it now handles this automatically. Then just run `canvas-scraper` again and re-authorize in the browser when prompted.
+
 **Google login fails with "Access blocked"**
 Your email hasn't been added as a test user. Ask the Google Cloud project owner to add you under **APIs & Services > OAuth consent screen > Test users**.
 
