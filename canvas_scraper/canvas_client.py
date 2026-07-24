@@ -18,6 +18,7 @@ class CanvasClient:
 
     def _request(self, method: str, endpoint: str, **kwargs) -> requests.Response:
         url = f"{self.base_url}/api/v1{endpoint}"
+        kwargs.setdefault("timeout", (10, 30))  # (connect, read) — avoid hanging forever
         resp = self.session.request(method, url, **kwargs)
         if resp.status_code == 401:
             raise CanvasAuthError(
@@ -33,7 +34,7 @@ class CanvasClient:
         url = f"{self.base_url}/api/v1{endpoint}"
 
         while url:
-            resp = self.session.get(url, params=params)
+            resp = self.session.get(url, params=params, timeout=(10, 30))
             if resp.status_code == 401:
                 raise CanvasAuthError(
                     "Canvas API token is invalid or expired.\n"
@@ -57,16 +58,25 @@ class CanvasClient:
         """Validate token by fetching the current user. Returns user dict."""
         return self._request("GET", "/users/self").json()
 
-    def get_courses(self) -> list[dict]:
-        """Return all active courses the user is enrolled in."""
-        courses = list(
-            self._paginate(
+    def get_courses(self, include_past: bool = True) -> list[dict]:
+        """Return courses the user is enrolled in.
+
+        Includes concluded (past-term) courses by default so materials from
+        finished courses aren't silently skipped. Canvas only accepts a single
+        ``enrollment_state`` per request, so we query each state and de-dupe.
+        """
+        states = ["active", "completed"] if include_past else ["active"]
+        seen: dict[int, dict] = {}
+        for state in states:
+            for course in self._paginate(
                 "/courses",
-                params={"enrollment_state": "active", "include[]": "term"},
-            )
-        )
-        # Filter out courses with no name (sometimes returned for deleted/pending courses)
-        return [c for c in courses if c.get("name")]
+                params={"enrollment_state": state, "include[]": "term"},
+            ):
+                # Filter out courses with no name (deleted/pending), and de-dupe:
+                # a course can be returned under more than one enrollment.
+                if course.get("name") and course["id"] not in seen:
+                    seen[course["id"]] = course
+        return list(seen.values())
 
     def get_modules(self, course_id: int) -> list[dict]:
         """Return all modules for a course."""
@@ -87,7 +97,7 @@ class CanvasClient:
 
     def download_file(self, url: str, dest_path) -> None:
         """Stream download a file (Canvas pre-signed URL) to dest_path."""
-        with self.session.get(url, stream=True, allow_redirects=True) as resp:
+        with self.session.get(url, stream=True, allow_redirects=True, timeout=(10, 60)) as resp:
             resp.raise_for_status()
             with open(dest_path, "wb") as f:
                 for chunk in resp.iter_content(chunk_size=8192):
